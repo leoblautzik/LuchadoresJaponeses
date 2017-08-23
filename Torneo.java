@@ -1,55 +1,58 @@
 package luchadoresJaponeses;
 
-import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Scanner;
+import java.util.Locale;
 
 public class Torneo {
-	private ArrayList<Luchador> participantes;
-	private ArrayList<Integer> resultados;
-	
-	public Torneo(ArrayList<Luchador> participantes){
-		setParticipantes(participantes);
+
+	private int cantidad;
+	private Luchador[] luchadores;
+	private int[] dominados;
+
+	public Torneo(String t) throws FileNotFoundException{
+		Scanner sc = new Scanner(new File(t));
+		sc.useLocale(Locale.ENGLISH);
+		this.cantidad=sc.nextInt();
+		this.luchadores = new Luchador[cantidad];
+		this.dominados = new int[cantidad]; 
+		for (int i = 0; i < this.cantidad; i++) 
+			this.luchadores[i] = new Luchador(sc.nextInt(),sc.nextInt()) ;
+
+		sc.close();
 	}
-		
-	public void predecirDominantes(){
-		ArrayList<Integer> prediccionDominantes = new ArrayList<Integer>();
-		
-		for(Luchador luchador: this.participantes){
-			Integer contador = 0;
-			for(Luchador contrincante : this.participantes){	
-				if(luchador.domina(contrincante).equals(true)){
-					contador++;
-				}
+
+
+	public void resolver(){
+
+		for(int i=0;i<cantidad;i++)
+			for(int j=i+1;j<cantidad;j++){	
+				if(luchadores[i].domina(luchadores[j]))
+					dominados[i]++;
+				if(luchadores[j].domina(luchadores[i]))
+					dominados[j]++;
 			}
-			prediccionDominantes.add(contador);
-		}
-		
-		setListado(prediccionDominantes);
-				
-	}
-	public ArrayList<Integer> getListado() {
-		return resultados;
-	}
-	public void setListado(ArrayList<Integer> listado) {
-		this.resultados = listado;
-	}
-	public ArrayList<Luchador> getParticipantes() {
-		return participantes;
-	}
-	public void setParticipantes(ArrayList<Luchador> participantes) {
-		ArrayList<Luchador> aux = new ArrayList<Luchador>();
-				
-		for(Luchador cadaUno:participantes){
-			Luchador luchadorAux = new Luchador(cadaUno.getPeso(),cadaUno.getAltura());
-			aux.add(luchadorAux);
-		}
-				
-		this.participantes=aux;
-	}
-		
-		public void imprimirResultados() {
-		for(Integer dominados: this.getListado()){
-			System.out.println(dominados.toString());
+	}			
+
+	public void mostrarResultados() {
+		for(Integer cadaUno: this.dominados){
+			System.out.println(cadaUno);
 		}
 	}
-	
+
+	public void imprimirResultados(String s) throws IOException{
+
+		PrintWriter salida = new PrintWriter(new FileWriter(s)); 
+
+
+		for(Integer cadaUno: this.dominados){
+			salida.println(cadaUno);
+		}
+
+		salida.close();
+	}
 }
